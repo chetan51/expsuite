@@ -22,7 +22,7 @@
 from ConfigParser import ConfigParser
 from multiprocessing import Process, Pool, cpu_count
 from numpy import *
-import os, sys, time, itertools, re, optparse, types
+import json, os, sys, time, itertools, re, optparse, types
 
 def mp_runrep(args):
     """ Helper function to allow multiprocessing support. """
@@ -197,20 +197,12 @@ class PyExperimentSuite(object):
                 return {}
 
         for line in f:
-            pairs = line.split()
-            for pair in pairs:
-                tag,val = pair.split(':')
-                if tags == 'all' or tag in tags:
-                    if not tag in results:
-                        try:
-                            results[tag] = [eval(val)]
-                        except (NameError, SyntaxError):
-                            results[tag] = [val]
-                    else:
-                        try:
-                            results[tag].append(eval(val))
-                        except (NameError, SyntaxError):
-                            results[tag].append(val)
+            dic = json.loads(line)
+            for tag in tags:
+              if tag in dic:
+                if not tag in results:
+                  results[tag] = []
+                results[tag].append(dic[tag])
                             
         f.close()
         if len(results) == 0:
@@ -587,22 +579,11 @@ class PyExperimentSuite(object):
             dic = self.iterate(params, rep, it)
             if self.restore_supported:
                 self.save_state(params, rep, it)
-                
-            # replace all spaces in keys with underscores
-            for k in dic:
-                if ' ' in k:
-                    newk = k.replace(' ', '_')
-                    dic[newk] = dic[k]
-                    del dic[k]
-                    # issue warning but only once per key
-                    if k not in self.key_warning_issued:
-                        print "warning: key '%s' contained spaces and was renamed to '%s'"%(k, newk)    
-                        self.key_warning_issued.append(k)
-                
-            # build string from dictionary
-            outstr = ' '.join(map(lambda x: '%s:%s'%(x[0], str(x[1])), dic.items()))
-            logfile.write(outstr + '\n')
+
+            json.dump(dic, logfile)
+            logfile.write('\n')
             logfile.flush()
+
         logfile.close()
 
         self.finalize(params, rep)
