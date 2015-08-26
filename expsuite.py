@@ -480,7 +480,7 @@ class PyExperimentSuite(object):
         self.mkdir(fullpath)
 
         # delete old histories if --del flag is active
-        if delete:
+        if delete and os.path.exists(fullpath):
             os.system('rm %s/*' % fullpath)
      
         # write a config file for this single exp. in the folder
