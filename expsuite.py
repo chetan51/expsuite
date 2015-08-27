@@ -580,9 +580,10 @@ class PyExperimentSuite(object):
             if self.restore_supported:
                 self.save_state(params, rep, it)
 
-            json.dump(dic, logfile)
-            logfile.write('\n')
-            logfile.flush()
+            if dic is not None:
+              json.dump(dic, logfile)
+              logfile.write('\n')
+              logfile.flush()
 
         logfile.close()
 
