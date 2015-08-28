@@ -196,10 +196,13 @@ class PyExperimentSuite(object):
         for line in f:
             dic = json.loads(line)
             for tag in tags:
+              if not tag in results:
+                results[tag] = []
+
               if tag in dic:
-                if not tag in results:
-                  results[tag] = []
                 results[tag].append(dic[tag])
+              else:
+                results[tag].append(None)
                             
         f.close()
         if len(results) == 0:
@@ -575,7 +578,9 @@ class PyExperimentSuite(object):
             
         # loop through iterations and call iterate
         for it in xrange(restore, params['iterations']):
-            dic = self.iterate(params, rep, it)
+            dic = self.iterate(params, rep, it) or {}
+            dic['iteration'] = it
+
             if self.restore_supported:
                 self.save_state(params, rep, it)
 
