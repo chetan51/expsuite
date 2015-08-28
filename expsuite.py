@@ -55,9 +55,6 @@ class PyExperimentSuite(object):
     restore_supported = False
     
     def __init__(self):
-        self.parse_opt()
-        self.parse_cfg()
-        
         # list of keys, that had to be renamed because they contained spaces
         self.key_warning_issued = []
     
@@ -489,6 +486,8 @@ class PyExperimentSuite(object):
         
     def start(self):
         """ starts the experiments as given in the config file. """     
+        self.parse_opt()
+        self.parse_cfg()
 
         # if -b, -B or -p option is set, only show information, don't
         # start the experiments
